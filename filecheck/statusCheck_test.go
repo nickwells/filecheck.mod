@@ -89,9 +89,9 @@ func TestStatusCheck(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		testID := fmt.Sprintf("test %d: %s", i, tc.name)
+		tcID := fmt.Sprintf("test %d: %s", i, tc.name)
 		err := tc.p.StatusCheck(tc.fileName)
-		testhelper.CheckError(t, testID, err, tc.errExpected, []string{})
+		testhelper.CheckError(t, tcID, err, tc.errExpected, tc.errMustContain)
 	}
 
 }
@@ -152,7 +152,7 @@ func TestESToString(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tcID := fmt.Sprintf("test %d: %s :", i, tc.name)
+		tcID := fmt.Sprintf("test %d: %s", i, tc.name)
 		val := tc.p.String()
 		if val != tc.expVal {
 			t.Log(tcID)
