@@ -1,7 +1,6 @@
 package filecheck_test
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -11,54 +10,66 @@ import (
 )
 
 func TestStatusCheck(t *testing.T) {
-	os.Chmod("testdata/IsAFile.PBits0600", 0600) // force the file mode
+	_ = os.Chmod("testdata/IsAFile.PBits0600", 0600) // force the file mode
+	const noSuchFile = "testdata/nonesuch"
+	const isAFile = "testdata/IsAFile"
+	const symlinkToAFile = "testdata/IsASymlinkToAFile"
+	const symlinkToNothing = "testdata/IsASymlinkToNothing"
 
 	testCases := []struct {
-		name           string
-		fileName       string
-		p              filecheck.Provisos
-		errExpected    bool
-		errMustContain []string
+		testhelper.ID
+		testhelper.ExpErr
+		fileName string
+		p        filecheck.Provisos
 	}{
 		{
-			name:     "doesn't exist",
-			fileName: "testdata/nonesuch",
+			ID:       testhelper.MkID("doesn't exist but should"),
+			fileName: noSuchFile,
+			p:        filecheck.Provisos{Existence: filecheck.MustExist},
+			ExpErr: testhelper.MkExpErr(noSuchFile,
+				"does not exist but should"),
+		},
+		{
+			ID:       testhelper.MkID("doesn't exist"),
+			fileName: noSuchFile,
 			p:        filecheck.Provisos{Existence: filecheck.MustNotExist},
 		},
 		{
-			name:     "need not exist and doesn't",
-			fileName: "testdata/nonesuch",
+			ID:       testhelper.MkID("need not exist and doesn't"),
+			fileName: noSuchFile,
 			p:        filecheck.Provisos{Existence: filecheck.Optional},
 		},
 		{
-			name:     "need not exist and does",
-			fileName: "testdata/IsAFile",
+			ID:       testhelper.MkID("need not exist and does"),
+			fileName: isAFile,
 			p:        filecheck.Provisos{Existence: filecheck.Optional},
 		},
 		{
-			name:     "file - exists and should",
-			fileName: "testdata/IsAFile",
+			ID:       testhelper.MkID("file - exists and should"),
+			fileName: isAFile,
 			p:        filecheck.Provisos{Existence: filecheck.MustExist},
 		},
 		{
-			name:        "file - exists and shouldn't",
-			fileName:    "testdata/IsAFile",
-			p:           filecheck.Provisos{Existence: filecheck.MustNotExist},
-			errExpected: true,
+			ID:       testhelper.MkID("file - exists and shouldn't"),
+			fileName: isAFile,
+			p:        filecheck.Provisos{Existence: filecheck.MustNotExist},
+			ExpErr:   testhelper.MkExpErr(isAFile, "exists but shouldn't"),
 		},
 		{
-			name:     "file (symlink) - exists and should",
-			fileName: "testdata/IsASymlinkToAFile",
+			ID:       testhelper.MkID("file (symlink) - exists and should"),
+			fileName: symlinkToAFile,
 			p:        filecheck.Provisos{Existence: filecheck.MustExist},
 		},
 		{
-			name:        "file (symlink) - exists - link to nothing",
-			fileName:    "testdata/IsASymlinkToNothing",
-			p:           filecheck.Provisos{Existence: filecheck.MustExist},
-			errExpected: true,
+			ID:       testhelper.MkID("file (symlink) - exists - link to nothing"),
+			fileName: symlinkToNothing,
+			p:        filecheck.Provisos{Existence: filecheck.MustExist},
+			ExpErr: testhelper.MkExpErr(symlinkToNothing,
+				"does not exist but should"),
 		},
 		{
-			name:     "file (symlink) - exists - link to nothing - dont follow",
+			ID: testhelper.MkID(
+				"file (symlink) - exists - link to nothing - dont follow"),
 			fileName: "testdata/IsASymlinkToNothing",
 			p: filecheck.Provisos{
 				Existence:          filecheck.MustExist,
@@ -66,7 +77,7 @@ func TestStatusCheck(t *testing.T) {
 			},
 		},
 		{
-			name:     "file - perms equal 0600",
+			ID:       testhelper.MkID("file - perms equal 0600"),
 			fileName: "testdata/IsAFile.PBits0600",
 			p: filecheck.Provisos{
 				Existence: filecheck.MustExist,
@@ -76,7 +87,7 @@ func TestStatusCheck(t *testing.T) {
 			},
 		},
 		{
-			name:     "file - perms don't equal 0664",
+			ID:       testhelper.MkID("file - perms don't equal 0664"),
 			fileName: "testdata/IsAFile.PBits0600",
 			p: filecheck.Provisos{
 				Existence: filecheck.MustExist,
@@ -84,31 +95,32 @@ func TestStatusCheck(t *testing.T) {
 					check.FileInfoPerm(check.FilePermEQ(0644)),
 				},
 			},
-			errExpected: true,
+			ExpErr: testhelper.MkExpErr("the check on the permissions of",
+				"IsAFile.PBits0600",
+				"failed: the permissions (0600) should be equal to 0644"),
 		},
 	}
 
-	for i, tc := range testCases {
-		tcID := fmt.Sprintf("test %d: %s", i, tc.name)
+	for _, tc := range testCases {
 		err := tc.p.StatusCheck(tc.fileName)
-		testhelper.CheckError(t, tcID, err, tc.errExpected, tc.errMustContain)
+		testhelper.CheckExpErr(t, err, tc)
 	}
 
 }
 
 func TestESToString(t *testing.T) {
 	testCases := []struct {
-		name   string
+		testhelper.ID
 		p      filecheck.Provisos
 		expVal string
 	}{
 		{
-			name:   "must not exist, no checks",
+			ID:     testhelper.MkID("must not exist, no checks"),
 			p:      filecheck.Provisos{Existence: filecheck.MustNotExist},
 			expVal: "The filesystem object must not exist",
 		},
 		{
-			name: "must not exist, with (redundant) checks",
+			ID: testhelper.MkID("must not exist, with (redundant) checks"),
 			p: filecheck.Provisos{
 				Existence: filecheck.MustNotExist,
 				Checks: []check.FileInfo{
@@ -118,12 +130,12 @@ func TestESToString(t *testing.T) {
 			expVal: "The filesystem object must not exist",
 		},
 		{
-			name:   "must exist, no checks",
+			ID:     testhelper.MkID("must exist, no checks"),
 			p:      filecheck.Provisos{Existence: filecheck.MustExist},
 			expVal: "The filesystem object must exist",
 		},
 		{
-			name: "must exist, with checks",
+			ID: testhelper.MkID("must exist, with checks"),
 			p: filecheck.Provisos{
 				Existence: filecheck.MustExist,
 				Checks: []check.FileInfo{
@@ -134,12 +146,12 @@ func TestESToString(t *testing.T) {
 				" and must satisfy further checks",
 		},
 		{
-			name:   "need not exist, no checks",
+			ID:     testhelper.MkID("need not exist, no checks"),
 			p:      filecheck.Provisos{Existence: filecheck.Optional},
 			expVal: "The filesystem object need not exist",
 		},
 		{
-			name: "need not exist, with checks",
+			ID: testhelper.MkID("need not exist, with checks"),
 			p: filecheck.Provisos{
 				Existence: filecheck.Optional,
 				Checks: []check.FileInfo{
@@ -151,11 +163,10 @@ func TestESToString(t *testing.T) {
 		},
 	}
 
-	for i, tc := range testCases {
-		tcID := fmt.Sprintf("test %d: %s", i, tc.name)
+	for _, tc := range testCases {
 		val := tc.p.String()
 		if val != tc.expVal {
-			t.Log(tcID)
+			t.Log(tc.IDStr())
 			t.Logf("\t: Expected: %s\n", tc.expVal)
 			t.Logf("\t:      Got: %s\n", val)
 			t.Errorf("\t: bad string representation of the Provisos\n")
