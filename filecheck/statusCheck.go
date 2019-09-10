@@ -1,7 +1,7 @@
 package filecheck
 
 import (
-	"errors"
+	"fmt"
 	"os"
 
 	"github.com/nickwells/check.mod/check"
@@ -48,20 +48,17 @@ func (p Provisos) StatusCheck(name string) error {
 
 	if os.IsNotExist(err) {
 		if p.Existence == MustExist {
-			return errors.New("path: '" + name +
-				"' does not exist but should")
+			return fmt.Errorf("path: %q should exist but doesn't", name)
 		}
 		return nil
 	}
 
 	if p.Existence == MustNotExist {
-		return errors.New("path: '" + name +
-			"' exists but shouldn't")
+		return fmt.Errorf("path: %q shouldn't exist but does", name)
 	}
 
 	if err != nil {
-		return errors.New("path: '" + name +
-			"' error: " + err.Error())
+		return fmt.Errorf("path: %q error: %s", name, err.Error())
 	}
 
 	for _, c := range p.Checks {
