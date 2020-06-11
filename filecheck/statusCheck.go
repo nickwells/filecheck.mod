@@ -12,14 +12,12 @@ import (
 // made and so any code using this should be aware of this
 type Exists uint
 
-// Optional indicates that no existence check should be made
-//
-// MustExist indicates that the object must exist
-//
-// MustNotExist indicates that the object must not exist
 const (
+	// Optional indicates that no existence check should be made
 	Optional Exists = iota
+	// MustExist indicates that the object must exist
 	MustExist
+	// MustNotExist indicates that the object must not exist
 	MustNotExist
 )
 
@@ -68,6 +66,8 @@ func (p Provisos) StatusCheck(name string) error {
 	}
 	return nil
 }
+
+// String returns a string describing the Provisos
 func (p Provisos) String() string {
 	rval := ""
 	prefix := ""
