@@ -36,7 +36,7 @@ func FileNonEmpty() Provisos {
 }
 
 // IsNew returns a Provisos that will check that the value refers to a
-// non-existant file/directory. This is a common Provisos value and this func
+// non-existent file/directory. This is a common Provisos value and this func
 // is provided to simplify your code.
 func IsNew() Provisos {
 	return Provisos{Existence: MustNotExist}
