@@ -108,7 +108,7 @@ func TestStatusCheck(t *testing.T) {
 
 }
 
-func TestESToString(t *testing.T) {
+func TestProvisosToString(t *testing.T) {
 	testCases := []struct {
 		testhelper.ID
 		p      filecheck.Provisos
@@ -164,12 +164,7 @@ func TestESToString(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		val := tc.p.String()
-		if val != tc.expVal {
-			t.Log(tc.IDStr())
-			t.Logf("\t: Expected: %s\n", tc.expVal)
-			t.Logf("\t:      Got: %s\n", val)
-			t.Errorf("\t: bad string representation of the Provisos\n")
-		}
+		testhelper.CmpValString(t, tc.IDStr(), "proviso string",
+			tc.p.String(), tc.expVal)
 	}
 }
