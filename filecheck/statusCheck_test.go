@@ -164,7 +164,7 @@ func TestProvisosToString(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		testhelper.CmpValString(t, tc.IDStr(), "proviso string",
+		testhelper.DiffString(t, tc.IDStr(), "proviso string",
 			tc.p.String(), tc.expVal)
 	}
 }
