@@ -105,7 +105,6 @@ func TestStatusCheck(t *testing.T) {
 		err := tc.p.StatusCheck(tc.fileName)
 		testhelper.CheckExpErr(t, err, tc)
 	}
-
 }
 
 func TestProvisosToString(t *testing.T) {
