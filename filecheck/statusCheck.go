@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nickwells/check.mod/check"
+	"github.com/nickwells/check.mod/v2/check"
 )
 
 // Exists records whether the file-system object should exist or

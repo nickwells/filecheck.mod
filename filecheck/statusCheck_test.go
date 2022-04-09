@@ -4,17 +4,23 @@ import (
 	"os"
 	"testing"
 
-	"github.com/nickwells/check.mod/check"
+	"github.com/nickwells/check.mod/v2/check"
 	"github.com/nickwells/filecheck.mod/filecheck"
-	"github.com/nickwells/testhelper.mod/testhelper"
+	"github.com/nickwells/testhelper.mod/v2/testhelper"
 )
 
 func TestStatusCheck(t *testing.T) {
-	_ = os.Chmod("testdata/IsAFile.PBits0600", 0600) // force the file mode
 	const noSuchFile = "testdata/nonesuch"
 	const isAFile = "testdata/IsAFile"
+	const isAFile600 = "testdata/IsAFile.PBits0600"
 	const symlinkToAFile = "testdata/IsASymlinkToAFile"
 	const symlinkToNothing = "testdata/IsASymlinkToNothing"
+
+	err := os.Chmod(isAFile600, 0o600) // force the file mode
+	if err != nil {
+		t.Fatalf("Cannot set the file permission bits on %q: %s\n",
+			isAFile600, err)
+	}
 
 	testCases := []struct {
 		testhelper.ID
@@ -78,26 +84,26 @@ func TestStatusCheck(t *testing.T) {
 		},
 		{
 			ID:       testhelper.MkID("file - perms equal 0600"),
-			fileName: "testdata/IsAFile.PBits0600",
+			fileName: isAFile600,
 			p: filecheck.Provisos{
 				Existence: filecheck.MustExist,
 				Checks: []check.FileInfo{
-					check.FileInfoPerm(check.FilePermEQ(0600)),
+					check.FileInfoPerm(check.FilePermEQ(0o600)),
 				},
 			},
 		},
 		{
 			ID:       testhelper.MkID("file - perms don't equal 0664"),
-			fileName: "testdata/IsAFile.PBits0600",
+			fileName: isAFile600,
 			p: filecheck.Provisos{
 				Existence: filecheck.MustExist,
 				Checks: []check.FileInfo{
-					check.FileInfoPerm(check.FilePermEQ(0644)),
+					check.FileInfoPerm(check.FilePermEQ(0o644)),
 				},
 			},
-			ExpErr: testhelper.MkExpErr("the check on the permissions of",
+			ExpErr: testhelper.MkExpErr("the file permissions of",
 				"IsAFile.PBits0600",
-				"failed: the permissions (0600) should be equal to 0644"),
+				"incorrect: the permissions (0600) should equal 0644"),
 		},
 	}
 
@@ -123,7 +129,7 @@ func TestProvisosToString(t *testing.T) {
 			p: filecheck.Provisos{
 				Existence: filecheck.MustNotExist,
 				Checks: []check.FileInfo{
-					check.FileInfoSize(check.Int64EQ(0)),
+					check.FileInfoSize(check.ValEQ[int64](0)),
 				},
 			},
 			expVal: "The filesystem object must not exist",
@@ -138,7 +144,7 @@ func TestProvisosToString(t *testing.T) {
 			p: filecheck.Provisos{
 				Existence: filecheck.MustExist,
 				Checks: []check.FileInfo{
-					check.FileInfoSize(check.Int64EQ(0)),
+					check.FileInfoSize(check.ValEQ[int64](0)),
 				},
 			},
 			expVal: "The filesystem object must exist" +
@@ -154,7 +160,7 @@ func TestProvisosToString(t *testing.T) {
 			p: filecheck.Provisos{
 				Existence: filecheck.Optional,
 				Checks: []check.FileInfo{
-					check.FileInfoSize(check.Int64EQ(0)),
+					check.FileInfoSize(check.ValEQ[int64](0)),
 				},
 			},
 			expVal: "The filesystem object need not exist" +

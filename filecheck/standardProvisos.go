@@ -1,6 +1,8 @@
 package filecheck
 
-import "github.com/nickwells/check.mod/check"
+import (
+	"github.com/nickwells/check.mod/v2/check"
+)
 
 // DirExists returns a Provisos that will check that the value refers
 // to a directory, which must exist. This is a common Provisos value and this
@@ -30,7 +32,7 @@ func FileNonEmpty() Provisos {
 		Existence: MustExist,
 		Checks: []check.FileInfo{
 			check.FileInfoIsRegular,
-			check.FileInfoSize(check.Int64GT(0)),
+			check.FileInfoSize(check.ValGT[int64](0)),
 		},
 	}
 }
