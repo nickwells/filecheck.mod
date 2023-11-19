@@ -1,6 +1,7 @@
 package filecheck
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -31,32 +32,40 @@ type Provisos struct {
 	DontFollowSymlinks bool
 }
 
+var (
+	ErrShouldExistButDoesNot = errors.New("should exist but does not")
+	ErrShouldNotExistButDoes = errors.New("should not exist but does")
+)
+
+// GetFileInfo gets the file information respecting the DontFollowSymlinks
+// flag from the Provisos.
+func (p Provisos) GetFileInfo(name string) (os.FileInfo, error) {
+	if p.DontFollowSymlinks {
+		return os.Lstat(name)
+	}
+	return os.Stat(name)
+}
+
 // StatusCheck checks that the file system object called 'name' satisfies
 // the constraints. It returns a non-nil error if the constraint is not
 // met. Note that if the file does not exist and it is not expected to
 // exist then no further checks are performed (this may be obvious to you)
 func (p Provisos) StatusCheck(name string) error {
-	var info os.FileInfo
-	var err error
-	if p.DontFollowSymlinks {
-		info, err = os.Lstat(name)
-	} else {
-		info, err = os.Stat(name)
-	}
+	info, err := p.GetFileInfo(name)
 
 	if os.IsNotExist(err) {
 		if p.Existence == MustExist {
-			return fmt.Errorf("path: %q should exist but doesn't", name)
+			return fmt.Errorf("path: %q: %w", name, ErrShouldExistButDoesNot)
 		}
 		return nil
 	}
 
 	if p.Existence == MustNotExist {
-		return fmt.Errorf("path: %q shouldn't exist but does", name)
+		return fmt.Errorf("path: %q: %w", name, ErrShouldNotExistButDoes)
 	}
 
 	if err != nil {
-		return fmt.Errorf("path: %q error: %s", name, err.Error())
+		return fmt.Errorf("path: %q: %w", name, err)
 	}
 
 	for _, c := range p.Checks {

@@ -29,19 +29,19 @@ func TestStatusCheck(t *testing.T) {
 		p        filecheck.Provisos
 	}{
 		{
-			ID:       testhelper.MkID("doesn't exist but should"),
+			ID:       testhelper.MkID("does not exist but should"),
 			fileName: noSuchFile,
 			p:        filecheck.Provisos{Existence: filecheck.MustExist},
 			ExpErr: testhelper.MkExpErr(noSuchFile,
-				"should exist but doesn't"),
+				"should exist but does not"),
 		},
 		{
-			ID:       testhelper.MkID("doesn't exist"),
+			ID:       testhelper.MkID("does not exist"),
 			fileName: noSuchFile,
 			p:        filecheck.Provisos{Existence: filecheck.MustNotExist},
 		},
 		{
-			ID:       testhelper.MkID("need not exist and doesn't"),
+			ID:       testhelper.MkID("need not exist and does not"),
 			fileName: noSuchFile,
 			p:        filecheck.Provisos{Existence: filecheck.Optional},
 		},
@@ -56,10 +56,10 @@ func TestStatusCheck(t *testing.T) {
 			p:        filecheck.Provisos{Existence: filecheck.MustExist},
 		},
 		{
-			ID:       testhelper.MkID("file - exists and shouldn't"),
+			ID:       testhelper.MkID("file - exists and should not"),
 			fileName: isAFile,
 			p:        filecheck.Provisos{Existence: filecheck.MustNotExist},
-			ExpErr:   testhelper.MkExpErr(isAFile, "shouldn't exist but does"),
+			ExpErr:   testhelper.MkExpErr(isAFile, "should not exist but does"),
 		},
 		{
 			ID:       testhelper.MkID("file (symlink) - exists and should"),
@@ -71,7 +71,7 @@ func TestStatusCheck(t *testing.T) {
 			fileName: symlinkToNothing,
 			p:        filecheck.Provisos{Existence: filecheck.MustExist},
 			ExpErr: testhelper.MkExpErr(symlinkToNothing,
-				"should exist but doesn't"),
+				"should exist but does not"),
 		},
 		{
 			ID: testhelper.MkID(
@@ -93,7 +93,7 @@ func TestStatusCheck(t *testing.T) {
 			},
 		},
 		{
-			ID:       testhelper.MkID("file - perms don't equal 0664"),
+			ID:       testhelper.MkID("file - perms do not equal 0664"),
 			fileName: isAFile600,
 			p: filecheck.Provisos{
 				Existence: filecheck.MustExist,
