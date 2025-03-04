@@ -43,6 +43,7 @@ func (p Provisos) GetFileInfo(name string) (os.FileInfo, error) {
 	if p.DontFollowSymlinks {
 		return os.Lstat(name)
 	}
+
 	return os.Stat(name)
 }
 
@@ -57,6 +58,7 @@ func (p Provisos) StatusCheck(name string) error {
 		if p.Existence == MustExist {
 			return fmt.Errorf("path: %q: %w", name, ErrShouldExistButDoesNot)
 		}
+
 		return nil
 	}
 
@@ -73,6 +75,7 @@ func (p Provisos) StatusCheck(name string) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

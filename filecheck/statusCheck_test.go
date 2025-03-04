@@ -10,11 +10,13 @@ import (
 )
 
 func TestStatusCheck(t *testing.T) {
-	const noSuchFile = "testdata/nonesuch"
-	const isAFile = "testdata/IsAFile"
-	const isAFile600 = "testdata/IsAFile.PBits0600"
-	const symlinkToAFile = "testdata/IsASymlinkToAFile"
-	const symlinkToNothing = "testdata/IsASymlinkToNothing"
+	const (
+		noSuchFile       = "testdata/nonesuch"
+		isAFile          = "testdata/IsAFile"
+		isAFile600       = "testdata/IsAFile.PBits0600"
+		symlinkToAFile   = "testdata/IsASymlinkToAFile"
+		symlinkToNothing = "testdata/IsASymlinkToNothing"
+	)
 
 	err := os.Chmod(isAFile600, 0o600) // force the file mode
 	if err != nil {
