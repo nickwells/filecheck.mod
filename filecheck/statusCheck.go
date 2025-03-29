@@ -32,6 +32,7 @@ type Provisos struct {
 	DontFollowSymlinks bool
 }
 
+// These errors represent the existence failures that can be reported
 var (
 	ErrShouldExistButDoesNot = errors.New("should exist but does not")
 	ErrShouldNotExistButDoes = errors.New("should not exist but does")
