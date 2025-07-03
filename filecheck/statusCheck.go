@@ -54,7 +54,6 @@ func (p Provisos) GetFileInfo(name string) (os.FileInfo, error) {
 // exist then no further checks are performed (this may be obvious to you)
 func (p Provisos) StatusCheck(name string) error {
 	info, err := p.GetFileInfo(name)
-
 	if os.IsNotExist(err) {
 		if p.Existence == MustExist {
 			return fmt.Errorf("path: %q: %w", name, ErrShouldExistButDoesNot)
